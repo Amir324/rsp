@@ -1,91 +1,111 @@
-import React, {useState} from 'react';
-import styled from "styled-components"
+import React, { useState } from "react";
 import Header from "./components/Header";
 import Item from "./components/Item";
 import Score from "./components/Score";
+import Modal from "./components/Modal";
 import GameReset from "./components/GameReset";
-import {ITEMS} from "./constants";
-import {findIcon, randomFromArray, selectWinner} from "./helpers";
+import { ITEMS } from "./constants";
+import { findIcon, randomFromArray, selectWinner } from "./helpers";
 import LogoImage from "./assets/images/logo-bonus.svg";
-
-const Container = styled.div`
-  margin: 0 auto;
-  width: 1000px;
-  height: 100vh;
-  background-color: #61dafb;
-`
-
-const ItemsWrapper = styled.div`
-  width: 1000px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`
-
-const Logo = styled.img`
-  height: 100%;
-`
-
-const ResultWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
+import RulesImage from "./assets/images/image-rules-bonus.svg";
+import {
+  Container,
+  ItemsWrapper,
+  ItemWrapper,
+  Logo,
+  ModalButton,
+  PickTitle,
+  ResultWrapper,
+  Rules,
+} from "./style";
 
 function App() {
+  const [totalScore, setTotalScore] = useState(0);
+  const [currentRoundWinner, setCurrentRoundWinner] = useState(null);
+  const [userChoiceState, setUserChoiceState] = useState(null);
+  const [houseChoiceState, setHouseChoiceState] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-    const [totalScore, setTotalScore] = useState(0)
-    const [currentRoundWinner, setCurrentRoundWinner] = useState(null)
-    const [userChoiceState, setUserChoiceState] = useState(null)
-    const [houseChoiceState, setHouseChoiceState] = useState(null)
+  const housePickedItem = (ITEMS) => {
+    return randomFromArray(Object.keys(ITEMS));
+  };
 
-    const housePickedItem = (ITEMS) => {
-        return randomFromArray(Object.keys(ITEMS))
+  const onClickHandler = (userChoice) => {
+    setUserChoiceState(userChoice);
+    const houseChoice = housePickedItem(ITEMS);
+    setHouseChoiceState(houseChoice);
+    const winnerChoice = selectWinner(userChoice, houseChoice);
+
+    if (winnerChoice === userChoice) {
+      setTotalScore(totalScore + 1);
+      setCurrentRoundWinner("YOU");
+    } else if (winnerChoice === houseChoice) {
+      setTotalScore(totalScore - 1);
+      setCurrentRoundWinner("HOUSE");
+    } else {
+      setCurrentRoundWinner("TIE");
     }
+  };
 
-    const onClickHandler = (userChoice) => {
-        setUserChoiceState(userChoice)
-        const houseChoice = housePickedItem(ITEMS)
-        setHouseChoiceState(houseChoice)
-        const winnerChoice = selectWinner(userChoice, houseChoice)
+  const onResetHandler = () => {
+    setCurrentRoundWinner(null);
+  };
 
-        console.log({userChoice, houseChoice, winnerChoice})
+  const showModalHandler = (state) => {
+    setShowModal(state);
+  };
 
-        if (winnerChoice === userChoice) {
-            setTotalScore(totalScore + 1)
-            setCurrentRoundWinner("user")
-        } else if (winnerChoice === houseChoice) {
-            setTotalScore(totalScore - 1)
-            setCurrentRoundWinner("house")
-        } else {
-            setCurrentRoundWinner("tie")
-        }
-    }
+  return (
+    <Container>
+      {showModal && (
+        <Modal onShowModal={showModalHandler}>
+          <Rules src={RulesImage} />
+        </Modal>
+      )}
 
-    const onResetHandler = () => {
-        setCurrentRoundWinner(null)
-    }
+      <Header>
+        <Logo src={LogoImage} alt="" />
+        <Score score={totalScore} />
+      </Header>
 
-    return (
-        <Container>
-            <Header>
-                <Logo src={LogoImage} alt=""/>
-                <Score score={totalScore}/>
-            </Header>
-
-            {!currentRoundWinner && <ItemsWrapper>
-                {Object.keys(ITEMS).map(item => {
-                    return <Item type={item} imgSrc={findIcon(item)} onClick={onClickHandler}/>
-                })}
-            </ItemsWrapper>}
-            {currentRoundWinner &&
-            <ResultWrapper>
-                <Item imgSrc={findIcon(userChoiceState)}/>
-                <GameReset winner={currentRoundWinner} onClick={onResetHandler}/>
-                <Item imgSrc={findIcon(houseChoiceState)}/>
-            </ResultWrapper>}
-        </Container>
-    );
+      {!currentRoundWinner && (
+        <ItemsWrapper>
+          {Object.keys(ITEMS).map((item, i) => {
+            return (
+              <Item
+                type={item}
+                key={i}
+                imgSrc={findIcon(item)}
+                onClick={onClickHandler}
+              />
+            );
+          })}
+        </ItemsWrapper>
+      )}
+      {currentRoundWinner && (
+        <ResultWrapper>
+          <ItemWrapper>
+            <PickTitle>YOU PICKED</PickTitle>
+            <Item
+              size={"big"}
+              type={userChoiceState}
+              imgSrc={findIcon(userChoiceState)}
+            />
+          </ItemWrapper>
+          <GameReset winner={currentRoundWinner} onClick={onResetHandler} />
+          <ItemWrapper>
+            <PickTitle>THE HOUSE PICKED</PickTitle>
+            <Item
+              size={"big"}
+              type={houseChoiceState}
+              imgSrc={findIcon(houseChoiceState)}
+            />
+          </ItemWrapper>
+        </ResultWrapper>
+      )}
+      <ModalButton onClick={() => showModalHandler(true)}>RULES</ModalButton>
+    </Container>
+  );
 }
 
 export default App;
