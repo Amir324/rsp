@@ -3,16 +3,21 @@ import styled from "styled-components";
 export const Container = styled.div`
   position: relative;
   margin: 0 auto;
-  width: 1000px;
+  min-width: 375px;
+  max-width: 1000px;
   height: 100%;
 `;
 
 export const ItemsWrapper = styled.div`
-  width: 1000px;
   display: flex;
   justify-content: center;
   align-items: center;
   height: calc(100% - 300px);
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    margin-top: 30px;
+  }
 `;
 
 export const Logo = styled.img`
@@ -24,6 +29,11 @@ export const ResultWrapper = styled.div`
   align-items: center;
   justify-content: space-around;
   height: calc(100% - 200px);
+
+  @media (max-width: 750px) {
+    flex-direction: column;
+    margin-top: 30px;
+  }
 `;
 
 export const ItemWrapper = styled.div`
@@ -39,6 +49,10 @@ export const PickTitle = styled.div`
   top: -50px;
   font-size: 25px;
   width: 100%;
+
+  @media (max-width: 750px) {
+    font-size: 15px;
+  }
 `;
 export const Rules = styled.img``;
 

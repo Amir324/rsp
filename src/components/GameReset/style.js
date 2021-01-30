@@ -5,6 +5,10 @@ export const Container = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
+
+  @media (max-width: 750px) {
+    order: 1;
+  }
 `;
 export const Winner = styled.div`
   color: white;
